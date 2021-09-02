@@ -24,43 +24,42 @@ import numpy as np
 serialName = "/dev/ttyACM0"            # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
 #serialName = "COM7"                  # Windows(variacao de)
-def command():
-    cs = ["00FF","00", "0F", "F0", "FF00", "FF"]
+def command():   
+    comando1 = [b'\xFF',b'\x00']
+    comando2 = b'\xFF'
+    comando3 = b'\x00'
+    comando4 = b'\xF0'
+    comando5 = b'\x0F'
+    comando6 = [b'\x00',b'\xFF']
+    cs = [comando1,comando2,comando3, comando4, comando5, comando6]
     nc = int(input("How many commands"))
     i = 0
     cl = []
     while i != nc:
         cl.append(random.choice(cs))
         i += 1
+    cl.append("EE")#Comando que finaliza leitura
     return cl
 
 def main():
     try:
-        #declaramos um objeto do tipo enlace com o nome "com". Essa é a camada inferior à aplicação. Observe que um parametro
-        #para declarar esse objeto é o nome da porta.
         timei = time.time()
         com1 = enlace(serialName)
-        
-    
-        # Ativa comunicacao. Inicia os threads e a comunicação seiral 
         print("Comunicação com client aberta")
         com1.enable()
-        
-        #Se chegamos até aqui, a comunicação foi aberta com sucesso. Faça um print para informar.
-        
         txBuffer = command()
         print(txBuffer)
         print(len(txBuffer))
         
         print("Começo da Transmissão")
-        bytesize = 0
+        bytesize = (-1)
         for comando in txBuffer:
             if len(comando) == 2:
                 numBytes = 1
             else:
                 numBytes = 2
             print("numBytes enviado")
-            com1.sendData(np.asarray(numBytes))
+            com1.sendData((numBytes).to_bytes(2, byteorder = "big"))
             bytesize += numBytes
             print("comando enviado")
             com1.sendData(np.asarray(comando))

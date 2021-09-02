@@ -37,14 +37,20 @@ def main():
         print("Comunicação com client aberta")
         com1.enable()
 
-
+        lista=[]
+        comando = b'x\AA'
         print("Recepção vai Comear")
-        numBytesComando, nRx = com1.getData(1)
-        comando, nRx = com1.getData(numBytesComando)
-        print(com1.rx.getBufferLen())
-        print("recebeu {}" .format(comando))
+        while comando != b'\xEE':
+            tamComando, nRx = com1.getData(2)
+            print("recebeu byte")
+            intc = int.from_bytes(tamComando, byteorder="big")
+            print("pegou o tamanho do byte")
+            comando, nRx = com1.getData(tamComando)
+            print("pegou o comando")
+            lista.append(comando)
+
+        print(lista)
         timef = time.time()
-            
         print(timef-timei)
 
 
