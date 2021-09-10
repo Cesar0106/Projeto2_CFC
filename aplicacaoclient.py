@@ -25,12 +25,12 @@ serialName = "/dev/ttyACM0"            # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
 #serialName = "COM7"                  # Windows(variacao de)
 def command():   
-    comando1 = [b'\xFF',b'\x00']
-    comando2 = [b'\xFF']
-    comando3 = [b'\x00']
-    comando4 = [b'\xF0']
-    comando5 = [b'\x0F']
-    comando6 = [b'\x00',b'\xFF']
+    comando1 = b'\xFF\x00'
+    comando2 = b'\xFF'
+    comando3 = b'\x00'
+    comando4 = b'\xF0'
+    comando5 = b'\x0F'
+    comando6 = b'\x00\xFF'
     cs = [comando1,comando2,comando3, comando4, comando5, comando6]
     nc = int(input("How many commands"))
     i = 0
@@ -38,7 +38,6 @@ def command():
     while i != nc:
         cl.append(random.choice(cs))
         i += 1
-    cl.append([b'\xEE'])#Comando que finaliza leitura
     return cl
 
 def main():
@@ -49,29 +48,30 @@ def main():
         com1.enable()
         txBuffer = command()
         print(txBuffer)
-        print(len(txBuffer)-1)
-        
+        print(len(txBuffer))
+        var1 = 1
+        var2 = 2
+        lista = []
         print("Começo da Transmissão")
-        bytesize = (-1)
         for comando in txBuffer:
             if len(comando) == 1:
-                com1.sendData(b'\x01')
-                print(1)
+                #lista.append(var1.to_bytes(1, 'big'))
+                lista.append(comando)
             else:
-                com1.sendData(b'\x02')
-                print(2)
+                #lista.append(var2.to_bytes(1, 'big'))
+                lista.append(comando)
+        com1.sendData(len(lista).to_bytes(2, 'big'))
+        print('Enviamos:', len(lista).to_bytes(2, 'big'))
+        time.sleep(0.1)
+        tamanho, nRx = com1.getData(2)
+        print("Servidor recebeu :",tamanho)
+        if tamanho == len(lista).to_bytes(2, 'big'):
             time.sleep(0.3)
-        #bytesize += numByte
-            com1.sendData(np.asarray(comando))
-            print(np.asarray(comando))
+            com1.sendData(np.asarray(lista))
+            print(lista)
+        else: 
+            print('enviou lista errada')
 
-        print("Tamanho do comando {0}bytes".format(bytesize))
-        txSize = com1.tx.getStatus()
-        print("Recepção vai Comear")
-        txLen = len(txBuffer)
-        rxBuffer, nRx = com1.getData(txLen)
-        print(com1.rx.getBufferLen())
-        print("recebeu {}" .format(rxBuffer))
         timef = time.time()
         print(timef-timei)
         # Encerra comunicação

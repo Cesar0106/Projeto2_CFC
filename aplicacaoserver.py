@@ -33,27 +33,19 @@ def main():
         com1.enable()
         intc = 0
         lista=[]
-        comando = b'\xAA'
+        lista2=[]
         print("Recepção vai Comear")
-        while comando != b'\xee':
-            tamComando, nRx = com1.getData(1)
-            time.sleep(0.3)
-            print("tamanho do comando", tamComando)
-            intc = int.from_bytes(tamComando, byteorder="big")
-            print(intc)
-            if intc ==2 :
-                comando, nRx = com1.getData(2)
-                print("pegou o comando{0}".format(comando))
-                lista.append(comando)
-            elif intc ==1 :
-                comando, nRx = com1.getData(1)
-                print("pegou o comando{0}".format(comando))
-                lista.append(comando)
-            else:
-                print("Achou fim")
-                print(lista)
 
-        
+            
+        tamComando, nRx = com1.getData(2)
+        print("tamanho do comando", tamComando) 
+        intc = int.from_bytes(tamComando, byteorder="big")
+        print("Client enviou ", intc)
+        com1.sendData(tamComando)
+        comandos, nRx = com1.getData(intc)
+        print(comandos)
+        i = 0
+            
         timef = time.time()
         print(timef-timei)
 
