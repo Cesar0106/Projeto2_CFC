@@ -27,29 +27,33 @@ serialName = "/dev/ttyACM1"            # Ubuntu (variacao de)
 
 def main():
     try:
-        #declaramos um objeto do tipo enlace com o nome "com". Essa é a camada inferior à aplicação. Observe que um parametro
-        #para declarar esse objeto é o nome da porta.
         timei = time.time()
         com1 = enlace(serialName)
-        
-    
-        # Ativa comunicacao. Inicia os threads e a comunicação seiral 
         print("Comunicação com client aberta")
         com1.enable()
-
+        intc = 0
         lista=[]
-        comando = b'x\AA'
+        comando = b'\xAA'
         print("Recepção vai Comear")
-        while comando != b'\xEE':
-            tamComando, nRx = com1.getData(2)
-            print("recebeu byte")
+        while comando != b'\xee':
+            tamComando, nRx = com1.getData(1)
+            time.sleep(0.3)
+            print("tamanho do comando", tamComando)
             intc = int.from_bytes(tamComando, byteorder="big")
-            print("pegou o tamanho do byte")
-            comando, nRx = com1.getData(tamComando)
-            print("pegou o comando")
-            lista.append(comando)
+            print(intc)
+            if intc ==2 :
+                comando, nRx = com1.getData(2)
+                print("pegou o comando{0}".format(comando))
+                lista.append(comando)
+            elif intc ==1 :
+                comando, nRx = com1.getData(1)
+                print("pegou o comando{0}".format(comando))
+                lista.append(comando)
+            else:
+                print("Achou fim")
+                print(lista)
 
-        print(lista)
+        
         timef = time.time()
         print(timef-timei)
 

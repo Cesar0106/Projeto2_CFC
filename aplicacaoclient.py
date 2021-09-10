@@ -17,7 +17,7 @@ import numpy as np
 
 # voce deverá descomentar e configurar a porta com através da qual ira fazer comunicaçao
 #   para saber a sua porta, execute no terminal :
-#   python -m serial.tools.list_ports
+#   python3 -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
 #use uma das 3 opcoes para atribuir à variável a porta usada
@@ -26,10 +26,10 @@ serialName = "/dev/ttyACM0"            # Ubuntu (variacao de)
 #serialName = "COM7"                  # Windows(variacao de)
 def command():   
     comando1 = [b'\xFF',b'\x00']
-    comando2 = b'\xFF'
-    comando3 = b'\x00'
-    comando4 = b'\xF0'
-    comando5 = b'\x0F'
+    comando2 = [b'\xFF']
+    comando3 = [b'\x00']
+    comando4 = [b'\xF0']
+    comando5 = [b'\x0F']
     comando6 = [b'\x00',b'\xFF']
     cs = [comando1,comando2,comando3, comando4, comando5, comando6]
     nc = int(input("How many commands"))
@@ -38,7 +38,7 @@ def command():
     while i != nc:
         cl.append(random.choice(cs))
         i += 1
-    cl.append("EE")#Comando que finaliza leitura
+    cl.append([b'\xEE'])#Comando que finaliza leitura
     return cl
 
 def main():
@@ -49,22 +49,23 @@ def main():
         com1.enable()
         txBuffer = command()
         print(txBuffer)
-        print(len(txBuffer))
+        print(len(txBuffer)-1)
         
         print("Começo da Transmissão")
         bytesize = (-1)
         for comando in txBuffer:
-            if len(comando) == 2:
-                numBytes = 1
+            if len(comando) == 1:
+                com1.sendData(b'\x01')
+                print(1)
             else:
-                numBytes = 2
-            print("numBytes enviado")
-            com1.sendData((numBytes).to_bytes(2, byteorder = "big"))
-            bytesize += numBytes
-            print("comando enviado")
+                com1.sendData(b'\x02')
+                print(2)
+            time.sleep(0.3)
+        #bytesize += numByte
             com1.sendData(np.asarray(comando))
+            print(np.asarray(comando))
 
-        print(bytesize)
+        print("Tamanho do comando {0}bytes".format(bytesize))
         txSize = com1.tx.getStatus()
         print("Recepção vai Comear")
         txLen = len(txBuffer)
