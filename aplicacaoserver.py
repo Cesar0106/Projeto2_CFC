@@ -32,10 +32,9 @@ def main():
         print("Comunicação com client aberta")
         com1.enable()
         intc = 0
-        lista=[]
-        lista2=[]
+        print("-------------------------")
         print("Recepção vai Comear")
-
+        print("-------------------------")
             
         tamComando, nRx = com1.getData(2)
         print("tamanho do comando", tamComando) 
@@ -44,8 +43,15 @@ def main():
         com1.sendData(tamComando)
         comandos, nRx = com1.getData(intc)
         print(comandos)
-        i = 0
-            
+        lista = []
+        for i in comandos:
+            if i == '\x01':
+                lista.append([comandos[i]])
+            elif i == '\x02':
+                lista.append([comandos[i]+ comandos[i+1]])
+            else:
+                continue
+        com1.sendData(comandos)    
         timef = time.time()
         print(timef-timei)
 
